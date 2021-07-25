@@ -11,7 +11,9 @@
         <FilmesListaIten
           v-for="filme in filmes"
           :key="filme.id"
-          v-bind="filme"
+          :filme="filme"
+          :class="aplicarClasseAtiva(filme)"
+          @selecionarFilme="filmeSelecionado = $event"
         />
 
       </div>
@@ -20,7 +22,7 @@
     <!-- coluna 2 -->
     <div class="col-4">
 
-      <FilmesListaItenInfo />
+      <FilmesListaItenInfo :filme="filmeSelecionado"/>
 
     </div>
 
@@ -44,7 +46,15 @@ export default {
         { id: 2, titulo: 'Homem Formiga e a Vespa', ano: 2018 },
         { id: 3, titulo: 'Pantera Negra', ano: 2018 },
         { id: 4, titulo: 'Deadpool 2', ano: 2018 }
-      ]
+      ],
+      filmeSelecionado: undefined
+    }
+  },
+  methods: {
+    aplicarClasseAtiva(filmeIterado) {
+      return {
+        active: this.filmeSelecionado && this.filmeSelecionado.id === filmeIterado.id
+      }
     }
   }
 }
