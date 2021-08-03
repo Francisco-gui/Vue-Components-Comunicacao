@@ -8,7 +8,7 @@
 
       <div class="list-group list-group-flush">
 
-        <FilmesListaIten
+        <FilmesListaItem
           v-for="filme in filmes"
           :key="filme.id"
           :filme="filme"
@@ -22,22 +22,33 @@
     <!-- coluna 2 -->
     <div class="col-4">
 
-      <FilmesListaItenInfo :filme="filmeSelecionado"/>
+      <FilmesListaItemInfo 
+        v-if="!editar"
+        :filme="filmeSelecionado"
+        @editarFilme="editarFilme"
+        />
 
+      <FilmesListaItemEditar 
+        v-else
+        :filme="filmeSelecionado"
+      />
     </div>
 
   </div>
 </template>
 
 <script>
+import { eventBus } from '../main';
 
-import FilmesListaIten from './FilmesListaIten.vue'
-import FilmesListaItenInfo from './FilmesListaItenInfo.vue'
+import FilmesListaItem from './FilmesListaItem.vue'
+import FilmesListaItemInfo from './FilmesListaItemInfo.vue'
+import FilmesListaItemEditar from './FilmesListaItemEditar.vue'
 
 export default {
   components: {
-    FilmesListaIten,
-    FilmesListaItenInfo
+    FilmesListaItem,
+    FilmesListaItemInfo,
+    FilmesListaItemEditar
   },
   data() {
     return {
@@ -47,7 +58,8 @@ export default {
         { id: 3, titulo: 'Pantera Negra', ano: 2018 },
         { id: 4, titulo: 'Deadpool 2', ano: 2018 }
       ],
-      filmeSelecionado: undefined
+      filmeSelecionado: undefined,
+      editar: false
     }
   },
   methods: {
@@ -55,7 +67,23 @@ export default {
       return {
         active: this.filmeSelecionado && this.filmeSelecionado.id === filmeIterado.id
       }
+    },
+    editarFilme(filme) {
+      this.editar = true
+      this.filmeSelecionado = filme
+    },
+    atualizarFilme(filmeAtualizado) {
+      const indice = this.filmes.findIndex(filme => filme.id === filmeAtualizado.id)
+      this.filmes.splice(indice, 1, filmeAtualizado)
+      this.filmeSelecionado = undefined
+      this.editar = false
     }
+  },
+  created() {
+    eventBus.$on('selecionarFilme', (filmeSelecionado) => {
+      this.filmeSelecionado = filmeSelecionado
+    }),
+    eventBus.$on('atualizarFilme', this.atualizarFilme)
   }
 }
 </script>
